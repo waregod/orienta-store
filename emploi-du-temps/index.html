@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; script-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Emploi du temps</title>
+  <meta name="description" content="Emploi du temps de la semaine avec matières et activités en glisser-déposer.">
+  <meta name="theme-color" content="#0F7B55">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Emploi du temps">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <img src="icons/icon.svg" alt="" width="44" height="44">
+      <div>
+        <h1 id="title">Emploi du temps</h1>
+        <p id="subtitle" class="subtitle"></p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="btnPrint" type="button" class="ghost">Imprimer</button>
+      <button id="btnSettings" type="button" class="ghost">Réglages</button>
+    </div>
+  </header>
+
+  <section id="banner" class="banner" aria-live="polite"></section>
+
+  <div class="layout">
+    <section class="board" aria-label="Emploi du temps de la semaine">
+      <div class="weekbar">
+        <button id="wkPrev" type="button" class="icon-btn" aria-label="Semaine précédente">‹</button>
+        <button id="wkLabel" type="button" class="week-label" aria-label="Changer l’intervalle de la semaine"></button>
+        <button id="wkNext" type="button" class="icon-btn" aria-label="Semaine suivante">›</button>
+        <button id="wkToday" type="button" class="ghost small">Aujourd’hui</button>
+        <button id="wkCopy" type="button" class="ghost small" hidden>Copier la semaine précédente</button>
+      </div>
+      <div class="board-scroll">
+        <div id="grid" class="grid" role="grid"></div>
+      </div>
+    </section>
+
+    <aside class="library" aria-label="Matières et activités">
+      <div class="lib-head">
+        <h2>Matières et activités</h2>
+        <button id="btnAdd" type="button" class="primary">Ajouter</button>
+      </div>
+      <p id="hint" class="hint"></p>
+      <ul id="list" class="list"></ul>
+    </aside>
+  </div>
+
+  <!-- Matière / activité -->
+  <dialog id="subjectDialog">
+    <form id="subjectForm" autocomplete="off">
+      <h2 id="sdTitle">Nouvelle matière</h2>
+      <label>Nom
+        <input name="name" required maxlength="80" placeholder="Ex. Analyse">
+      </label>
+      <label>Enseignant
+        <input name="teacher" maxlength="60" placeholder="Ex. Dr Kraidi">
+      </label>
+      <label>Téléphone
+        <input name="phone" type="tel" inputmode="tel" maxlength="30" placeholder="Ex. 07 08 19 69 26">
+      </label>
+      <label>Salle
+        <input name="room" maxlength="30" placeholder="Ex. D9">
+      </label>
+      <fieldset>
+        <legend>Type</legend>
+        <div id="kinds" class="kinds"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Couleur</legend>
+        <div id="swatches" class="swatches"></div>
+      </fieldset>
+      <div class="actions">
+        <button id="sdDelete" type="button" class="danger">Supprimer</button>
+        <span class="spacer"></span>
+        <button id="sdCancel" type="button" class="ghost">Annuler</button>
+        <button type="submit" class="primary">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Réglages -->
+  <dialog id="settingsDialog">
+    <form id="settingsForm" autocomplete="off">
+      <h2>Réglages</h2>
+      <label>Classe
+        <input name="title" maxlength="60" placeholder="Ex. L1 SCD / DSIA A">
+      </label>
+      <label>Salle
+        <input name="room" maxlength="40" placeholder="Ex. Salle D9">
+      </label>
+      <div class="data-box">
+        <p>Sauvegarde</p>
+        <div class="row">
+          <button id="btnExport" type="button" class="ghost">Exporter (.json)</button>
+          <button id="btnImport" type="button" class="ghost">Importer</button>
+          <button id="btnReset" type="button" class="danger">Tout réinitialiser</button>
+        </div>
+        <input id="fileImport" type="file" accept="application/json,.json" hidden>
+      </div>
+      <div class="actions">
+        <span class="spacer"></span>
+        <button id="stCancel" type="button" class="ghost">Annuler</button>
+        <button type="submit" class="primary">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Intervalle de la semaine -->
+  <dialog id="weekDialog">
+    <form id="weekForm">
+      <h2>Intervalle de la semaine</h2>
+      <div class="two">
+        <label>Du <input type="date" name="start" required></label>
+        <label>Au <input type="date" name="end" required></label>
+      </div>
+      <p class="note">7 jours au maximum. Les colonnes restent lundi → samedi ; les dates s’affichent sous chaque jour.</p>
+      <div class="actions">
+        <button id="wkDelete" type="button" class="danger">Supprimer cette semaine</button>
+        <span class="spacer"></span>
+        <button id="wkCancel" type="button" class="ghost">Annuler</button>
+        <button type="submit" class="primary">Valider</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Semaines enregistrées -->
+  <dialog id="historyDialog">
+    <h2>Semaines enregistrées</h2>
+    <p class="note">Gardées sur cet appareil uniquement. Pour une copie ailleurs, télécharge le fichier .txt.</p>
+    <ul id="savedList" class="saved-list"></ul>
+    <div class="actions">
+      <span class="spacer"></span>
+      <button id="hsClose" type="button" class="ghost">Fermer</button>
+    </div>
+  </dialog>
+
+  <div class="savebar">
+    <span id="saveStatus" class="save-status"></span>
+    <button id="btnHistory" type="button" class="ghost">Semaines enregistrées</button>
+    <button id="btnSave" type="button" class="primary">Enregistrer la semaine</button>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

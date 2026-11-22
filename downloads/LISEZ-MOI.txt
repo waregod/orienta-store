@@ -1,0 +1,8 @@
+Déposez ici les fichiers à télécharger, avec EXACTEMENT ces noms :
+
+  emploi-du-temps.apk               (app-debug.apk de l'emploi du temps, renommé)
+  emploi-du-temps-setup.exe         (Emploi du temps Setup 1.0.0.exe, renommé)
+  emploi-du-temps-portable.exe      (Emploi du temps 1.0.0.exe, renommé)
+  cards.apk                         (app-debug.apk de Cards, renommé)
+
+Pour changer un nom de fichier ou ajouter une version : js/apps.js.
