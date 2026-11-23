@@ -28,6 +28,29 @@
     return 'other';
   }
   const device = detectDevice();
+  const downloadStatus = new Map();
+  let availabilityStarted = false;
+
+  async function checkDownloads() {
+    if (availabilityStarted) return;
+    availabilityStarted = true;
+    const files = [...new Set(APPS.flatMap((app) =>
+      app.downloads.filter((download) => download.file).map((download) => download.file)))];
+
+    await Promise.all(files.map(async (file) => {
+      try {
+        let response = await fetch(file, { method: 'HEAD', cache: 'no-store' });
+        if (response.status === 405) {
+          response = await fetch(file, { method: 'GET', cache: 'no-store' });
+        }
+        downloadStatus.set(file, response.ok);
+      } catch {
+        downloadStatus.set(file, false);
+      }
+    }));
+
+    route();
+  }
 
   function fmtDate(iso) {
     try { return new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }); }
@@ -39,7 +62,17 @@
   /* Action principale d'une application selon l'appareil du visiteur */
   function primaryAction(app) {
     const d = app.downloads.find((x) => x.platform === device && x.primary !== false && x.file);
-    if (d) return { label: `Télécharger pour ${PLATFORM[device]}`, href: d.file, download: true };
+    if (d) {
+      if (downloadStatus.get(d.file) === true) {
+        return { label: `Télécharger pour ${PLATFORM[device]}`, href: d.file, download: true };
+      }
+      if (downloadStatus.get(d.file) === false) {
+        const web = app.downloads.find((x) => x.platform === 'web');
+        if (web) return { label: web.pwa ? 'Ouvrir la version web' : (web.label || 'Ouvrir le site'), href: web.href, external: !web.pwa || /^https?:/.test(web.href) };
+        return null;
+      }
+      return null;
+    }
     const web = app.downloads.find((x) => x.platform === 'web');
     if (web) return { label: web.pwa ? 'Ouvrir la version web' : (web.label || 'Ouvrir le site'), href: web.href, external: !web.pwa || /^https?:/.test(web.href) };
     return null;
@@ -164,7 +197,11 @@
     const files = app.downloads.map((d) => h('li', { class: 'file' },
       h('div', null, h('strong', null, d.label), h('small', null, d.file ? [`v${app.version}`, d.size ? `  ${d.size}` : ''] : 'Sans installation')),
       d.file
-        ? h('a', { class: 'btn btn-ink', href: d.file, download: '' }, 'Télécharger')
+        ? downloadStatus.get(d.file) === false
+          ? h('span', { class: 'btn btn-ink', 'aria-disabled': 'true' }, 'Fichier non publié')
+          : downloadStatus.get(d.file) === true
+            ? h('a', { class: 'btn btn-ink', href: d.file, download: '' }, 'Télécharger')
+            : h('span', { class: 'btn btn-ink', 'aria-disabled': 'true' }, 'Vérification...')
         : h('a', { class: 'btn btn-ink', href: d.href, target: '_blank', rel: 'noopener' }, 'Ouvrir')));
 
     root.replaceChildren(
@@ -211,4 +248,5 @@
   }
   window.addEventListener('hashchange', route);
   route();
+  checkDownloads();
 })();
