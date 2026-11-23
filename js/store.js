@@ -38,6 +38,10 @@
       app.downloads.filter((download) => download.file).map((download) => download.file)))];
 
     await Promise.all(files.map(async (file) => {
+      if (new URL(file, location.href).origin !== location.origin) {
+        downloadStatus.set(file, true);
+        return;
+      }
       try {
         let response = await fetch(file, { method: 'HEAD', cache: 'no-store' });
         if (response.status === 405) {

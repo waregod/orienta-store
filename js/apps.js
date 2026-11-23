@@ -25,7 +25,6 @@ const INSTALL = {
     'Téléchargez le fichier d’installation (.exe).',
     'Double-cliquez dessus. Si Windows affiche « SmartScreen a protégé votre PC », cliquez sur « Informations complémentaires », puis sur « Exécuter quand même ».',
     'Suivez l’assistant, puis ouvrez l’application depuis le menu Démarrer.',
-    'Pas envie d’installer ? La version portable se lance d’un double-clic.',
   ],
 };
 
@@ -35,6 +34,9 @@ INSTALL.ios = [
   'Faites défiler et touchez « Sur l’écran d’accueil », puis Ajouter.',
   'Ouvrez l’application depuis son icône sur l’écran d’accueil. Après la première ouverture, elle marche sans Internet.',
 ];
+
+const DOWNLOAD_RELEASE = 'v1.0.0';
+const RELEASE_BASE = `https://github.com/waregod/orienta-store/releases/download/${DOWNLOAD_RELEASE}`;
 
 const APPS = [
   {
@@ -63,9 +65,8 @@ const APPS = [
     ],
     /* size : taille du fichier, par ex. '4,2 Mo'. Laissez vide pour ne rien afficher. */
     downloads: [
-      { platform: 'android', label: 'Android (APK)', file: 'downloads/emploi-du-temps.apk', size: '' },
-      { platform: 'windows', label: 'Windows, installateur', file: 'downloads/emploi-du-temps-setup.exe', size: '' },
-      { platform: 'windows', label: 'Windows, version portable', file: 'downloads/emploi-du-temps-portable.exe', size: '', primary: false },
+      { platform: 'android', label: 'Android (APK)', file: `${RELEASE_BASE}/emploi-du-temps.apk`, size: '' },
+      { platform: 'windows', label: 'Windows, installateur', file: `${RELEASE_BASE}/emploi-du-temps-setup.exe`, size: '' },
       /* pwa: true = installable sur l'écran d'accueil (iPhone). Dossier : emploi-du-temps/ */
       { platform: 'web', label: 'Version web (iPhone, Android, ordinateur)', href: 'emploi-du-temps/', pwa: true },
     ],
@@ -90,7 +91,7 @@ const APPS = [
     updateNote: 'Les nouvelles versions s’installent par-dessus l’ancienne, sans perte de données.',
     shots: [],
     downloads: [
-      { platform: 'android', label: 'Android (APK)', file: 'downloads/cards.apk', size: '' },
+      { platform: 'android', label: 'Android (APK)', file: `${RELEASE_BASE}/cards.apk`, size: '' },
       { platform: 'web', label: 'Version web (iPhone, Android, ordinateur)', href: 'https://card-revision.site', pwa: true },
     ],
   },
